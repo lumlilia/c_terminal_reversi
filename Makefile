@@ -1,5 +1,25 @@
-reversi: main.c
-	gcc main.c -o reversi
+NAME	= reversi
+OBJS	= main.o reversi_base.o
 
+.PHONY: all
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	gcc $(OBJS) -o $(NAME)
+
+main.o: main.c
+	gcc -c main.c
+reversi_base.o: reversi_base.c
+	gcc -c reversi_base.c
+
+.PHONY: clean
 clean:
-	$(RM) reversi
+	$(RM) *.o
+
+.PHONY: fclean
+fclean: clean
+	$(RM) $(NAME)
+
+.PHONY: re
+re: fclean all
+
