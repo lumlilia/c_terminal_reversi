@@ -6,20 +6,20 @@
 typedef struct{
   char places[256];
   long long reverse_counts[256];
-  short counts[2];
-  short sizes[3];
-  char colors[2];
+  int counts[2];
+  int sizes[3];
+  int colors[2];
 } boarddata;
 
 
-void ResetBoard(boarddata*, char);
-short CheckMove(boarddata*, short, char);
-void CheckRev(boarddata*, short, char, char, char*);
-long long Search(boarddata*, short, char);
-int SetReverseCounts(boarddata*, char);
-void SetStone(boarddata*, short, char);
-void DrawBoard(boarddata*, char*, short);
-char ChangeTurn(boarddata*, char);
+void ResetBoard(boarddata*, int);
+int CheckMove(boarddata*, int, int);
+void CheckRev(boarddata*, int, int, int, int*);
+long long Search(boarddata*, int, int);
+int SetReverseCounts(boarddata*, int);
+void SetStone(boarddata*, int, int);
+void DrawBoard(boarddata*, char*, int, int);
+int ChangeTurn(boarddata*, int);
 
 
 int main(void){
@@ -45,31 +45,23 @@ int main(void){
 
   char* stone[3] = {
     "　",
-    "Ｏ",
-    "Ｘ"
+    "⚪️",
+    "⚫️"
   };
 
   char ch;
-  char loop_flag = 1;
-  short pos = 0;
-  short move;
+  int loop_flag = 1;
+  int pos = 0;
+  int move;
 
-  char turn = 0;
+  int turn = 0;
 
   SetReverseCounts(&board, 0);
 
   printf("\e[?25l\e[2J");
-  DrawBoard(&board, stone[0], 0);
+  DrawBoard(&board, stone[0], 0, 0);
 
   while(loop_flag){
-    printf("\e[%d;1H\e[1m%s\e[0mのターン\n\n%s: %d  /  %s: %d\n",
-      board.sizes[1] + 3,
-      stone[turn + 1],
-      stone[1],
-      board.counts[0],
-      stone[2],
-      board.counts[1]
-    );
     ch = getchar();
     move = 0;
 
@@ -96,7 +88,6 @@ int main(void){
 
       case 32:
         if(board.reverse_counts[pos]){
-          //DrawBoard(&board, stone[0], pos);
           SetStone(&board, pos, turn);
 
           turn = ChangeTurn(&board, turn);
@@ -104,18 +95,19 @@ int main(void){
           if(turn < 0){
             loop_flag = 0;
           }
-          DrawBoard(&board, stone[0], pos);
+
+          DrawBoard(&board, stone[0], pos, turn);
         }
 
         break;
     }
 
     if(move){
-      short mv = pos + move;
+      int mv = pos + move;
       if(mv >= 0 && mv < board.sizes[2]){
         pos = mv;
 
-        DrawBoard(&board, stone[0], pos);
+        DrawBoard(&board, stone[0], pos, turn);
       }
     }
   }
@@ -135,12 +127,12 @@ int main(void){
 }
 
 
-void ResetBoard(boarddata* board, char flag){
+void ResetBoard(boarddata* board, int flag){
   memset(board->places, 0, 256);
   memset(board->reverse_counts, 0, 2048);
 
   if(flag){
-    short b_center[2] = {
+    int b_center[2] = {
       board->sizes[0] / 2 - 1,
       board->sizes[1] / 2 - 1
     };
@@ -159,10 +151,10 @@ void ResetBoard(boarddata* board, char flag){
 }
 
 
-short CheckMove(boarddata* board, short pos, char v){
-  char flag = 0;
-  short x = pos % board->sizes[0];
-  short y = pos / board->sizes[0];
+int CheckMove(boarddata* board, int pos, int v){
+  int flag = 0;
+  int x = pos % board->sizes[0];
+  int y = pos / board->sizes[0];
 
   if((v >= 1 && v <= 3) && x < (board->sizes[0] - 1)){
     x++;
@@ -193,13 +185,13 @@ short CheckMove(boarddata* board, short pos, char v){
 }
 
 
-void CheckRev(boarddata* board, short pos, char n, char v, char* count){
+void CheckRev(boarddata* board, int pos, int turn, int v, int* count){
   pos = CheckMove(board, pos, v);
 
   if(pos > -1){
-    if(board->places[pos] == (1 + !n)){
+    if(board->places[pos] == (1 + !turn)){
       *count += 1;
-      CheckRev(board, pos, n, v, count);
+      CheckRev(board, pos, turn, v, count);
     }
     else if(board->places[pos] == 0){
       *count = 0;
@@ -212,8 +204,8 @@ void CheckRev(boarddata* board, short pos, char n, char v, char* count){
 }
 
 
-long long Search(boarddata* board, short pos, char n){
-  char count;
+long long Search(boarddata* board, int pos, int turn){
+  int count;
   int flag = 0;
   long long ret = 0;
   char* p = (char *)&ret;
@@ -221,7 +213,7 @@ long long Search(boarddata* board, short pos, char n){
   for(int i = 0; i < 8; i++){
     count = 0;
 
-    CheckRev(board, pos, n, i, &count);
+    CheckRev(board, pos, turn, i, &count);
 
     *p = count;
     p++;
@@ -235,7 +227,7 @@ long long Search(boarddata* board, short pos, char n){
 }
 
 
-int SetReverseCounts(boarddata* board, char turn){
+int SetReverseCounts(boarddata* board, int turn){
   memset(board->reverse_counts, 0, board->sizes[2] * 8);
   int ret = 0;
 
@@ -253,12 +245,12 @@ int SetReverseCounts(boarddata* board, char turn){
 }
 
 
-void SetStone(boarddata* board, short pos, char turn){
+void SetStone(boarddata* board, int pos, int turn){
   board->places[pos] = turn + 1;
   board->counts[turn]++;
 
   char* p = (char *)&board->reverse_counts[pos];
-  short m;
+  int m;
 
   for(int i = 0; i < 8; i++){
     if(*p){
@@ -282,23 +274,23 @@ void SetStone(boarddata* board, short pos, char turn){
 }
 
 
-void DrawBoard(boarddata* board, char* stone, short pos){
+void DrawBoard(boarddata* board, char* stone, int pos, int turn){
   int si[3];
   si[0] = 0;
   si[1] = strlen(&stone[0]) + 1;
   si[2] = si[1] + strlen(&stone[si[1]]) + 1;
-  printf("\e[1;1H\e[1;38;2;0;0;0m");
+  printf("\e[1;1H\e[2J\e[1;38;2;0;0;0m");
 
-  char c = 0;
+  int c = 0;
 
   for(int i = 0; i < board->sizes[2]; i++){
     if(i % board->sizes[0]){
       c = !c;
     }
 
-    char col_n;
+    int col_n;
     if(i == pos){
-      col_n = 47;
+      col_n = 103;
     }
     else if(board->reverse_counts[i]){
       col_n = 43;
@@ -317,27 +309,41 @@ void DrawBoard(boarddata* board, char* stone, short pos){
     }
   }
 
-  short x = 1 + pos % board->sizes[0];
-  short y = 1 + pos / board->sizes[1];
+  printf("\e[1B\e[1G\e[1m\e[0m");
+
+  if(turn < 0){
+    printf("勝負あり！！");
+  }
+  else{
+    printf("%sのターン", &stone[si[turn + 1]]);
+  }
+
+  printf("\n\n%s: %d  /  %s: %d\n",
+    &stone[si[1]],
+    board->counts[0],
+    &stone[si[2]],
+    board->counts[1]
+  );
+
+  int x = 1 + pos % board->sizes[0];
+  int y = 1 + pos / board->sizes[1];
   printf("\e[0m\e[%d;%dH", x, y);
 }
 
 
-char ChangeTurn(boarddata* board, char n){
+int ChangeTurn(boarddata* board, int turn){
   int c = 0;
 
   for(int i = 0; i < 2; i++){
-    n = !n;
-    c = SetReverseCounts(board, n);
+    turn = !turn;
+    c = SetReverseCounts(board, turn);
     if(c){
       break;
     }
-
-    n = !n;
   }
 
   if(c){
-    return n;
+    return turn;
   }
 
   return -1;
