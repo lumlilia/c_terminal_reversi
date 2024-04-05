@@ -173,26 +173,26 @@ void DrawBoard(boarddata* board, int disc_type, int pos, int turn){
       col_n = board->colors[c];
     }
 
-    printf("\e[%dm%s\e[49m",
+    printf("\e[%dm%s",
       col_n,
       REVERSI_DISCS[disc_type + board->places[i]]
     );
 
     if(i % board->sizes[1] == board->sizes[1] - 1){
-      printf("\e[%d;1H", (int)(i / board->sizes[0]) + 2);
+      printf("\e[1B\e[1G");
     }
   }
 
-  printf("\e[1B\e[1G\e[1m\e[0m");
+  printf("\e[1B\e[1G\e[0m\e[1m");
 
   if(turn < 0){
     printf("勝負あり！！");
   }
   else{
-    printf("%sのターン", REVERSI_DISCS[disc_type + turn + 1]);
+    printf("%s\e[0mのターン", REVERSI_DISCS[disc_type + turn + 1]);
   }
 
-  printf("\n\n%s: %d  /  %s: %d\n",
+  printf("\n\n\e[1m%s\e[0m: %d  /  \e[1m%s\e[0m: %d\n",
     REVERSI_DISCS[disc_type + 1],
     board->counts[0],
     REVERSI_DISCS[disc_type + 2],
@@ -249,7 +249,13 @@ void ReversiMain(int disc_type, int vs_mode){
   DrawBoard(&board, disc_type, 0, 0);
 
   while(loop_flag){
-    ch = getchar();
+    if(vs_mode){
+      pos = CpuSelectPos(&board, 1, 0);
+      ch = 32;
+    }
+    else{
+      ch = getchar();
+    }
     move = 0;
 
     switch(ch){
@@ -306,6 +312,6 @@ void ReversiMain(int disc_type, int vs_mode){
   }
 
   else{
-    printf("%sの勝ち！！\n", REVERSI_DISCS[disc_type + 1 + (board.counts[0] < board.counts[1])]);
+    printf("\e[1m%sの勝ち！！\n\e[0m", REVERSI_DISCS[disc_type + 1 + (board.counts[0] < board.counts[1])]);
   }
 }

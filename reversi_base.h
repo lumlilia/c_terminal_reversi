@@ -14,9 +14,11 @@ typedef struct{
   "⚫️", \
 \
   "　", \
-  "ｏ", \
-  "ｘ" \
+  "Ｏ", \
+  "Ｘ" \
 })
+
+int CpuSelectPos(boarddata*, int, int);
 
 void ResetBoard(boarddata*, int);
 int CheckMove(boarddata*, int, int);

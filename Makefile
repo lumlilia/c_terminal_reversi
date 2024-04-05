@@ -1,5 +1,5 @@
 NAME	= reversi
-OBJS	= main.o reversi_base.o
+OBJS	= main.o reversi_base.o reversi_npc.o
 
 .PHONY: all
 all: $(NAME)
@@ -11,6 +11,8 @@ main.o: main.c
 	gcc -c main.c
 reversi_base.o: reversi_base.c
 	gcc -c reversi_base.c
+reversi_npc.o: reversi_npc.c
+	gcc -c reversi_npc.c
 
 .PHONY: clean
 clean:
