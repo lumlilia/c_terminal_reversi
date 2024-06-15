@@ -2,20 +2,33 @@
 #include <string.h>
 #include <termios.h>
 
-#include "term_change.c"
+#include "term_mode_edit.h"
+#include "check_input.h"
+#include "title.h"
 #include "reversi_base.h"
 
 
-int main(int argc, char* argv[]){
-  int vs_mode = ((argc == 1) ? 0 : 1);
-  struct termios terms[2];
+int main(){
+  int loop_flag;
+  reversi_mode r_mode;
 
-  GetDefaultTerms(&terms[0]);
-  TermModeChange(&terms[0], 1);
+  FormatReversiMode(&r_mode);
+  GetDefaultFcntlFlag();
 
-  ReversiMain(0, vs_mode);
+  GetDefaultTerms();
+  ChangeTermMode(SET_TERM_NONCANON);
+  printf("\e[?25l");
 
-  TermModeChange(&terms[0], 0);
+  while(loop_flag){
+    loop_flag = ShowTitle(&r_mode);
+
+    if(loop_flag){
+      loop_flag = ReversiMain(0, &r_mode);
+    }
+  }
+
+  ChangeTermMode(SET_TERM_DEFAULT);
+  printf("\e[?25h");
 
   return 0;
 }

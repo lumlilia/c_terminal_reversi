@@ -1,6 +1,19 @@
 #include <stdio.h>
 #include <string.h>
 #include "reversi_base.h"
+#include "check_input.h"
+
+
+void FormatReversiMode(reversi_mode* mode){
+  mode->player = 1;
+  mode->levels[0] = 1;
+  mode->levels[1] = 1;
+  mode->turn = 0;
+  memset(&mode->name1[0], 0, sizeof(mode->name1));
+  memset(&mode->name2[0], 0, sizeof(mode->name2));
+  strcpy(&mode->name1[0], "nanasi 1");
+  strcpy(&mode->name2[0], "nanasi 2");
+}
 
 
 void ResetBoard(boarddata* board, int flag){
@@ -224,7 +237,7 @@ int ChangeTurn(boarddata* board, int turn){
 }
 
 
-void ReversiMain(int disc_type, int vs_mode){
+int ReversiMain(int disc_type, reversi_mode* mode){
   disc_type *= 3;
 
   boarddata board;
@@ -236,7 +249,7 @@ void ReversiMain(int disc_type, int vs_mode){
 
   ResetBoard(&board, 1);
 
-  char ch;
+  int input_key;
   int loop_flag = 1;
   int pos = 0;
   int move;
@@ -245,41 +258,49 @@ void ReversiMain(int disc_type, int vs_mode){
 
   SetReverseCounts(&board, 0);
 
-  printf("\e[?25l\e[2J");
+  printf("\e[2J");
   DrawBoard(&board, disc_type, 0, 0);
 
   while(loop_flag){
-    if(vs_mode){
+    if(
+      (!mode->player && turn) ||
+      mode->player == 2
+    ){
       pos = CpuSelectPos(&board, 1, 0);
-      ch = 32;
+      input_key = 32;
     }
     else{
-      ch = getchar();
+      input_key = GetInput();
     }
     move = 0;
 
-    switch(ch){
+    switch(input_key){
       case 27:
         loop_flag = 0;
         break;
 
       case 'a':
+      case INPUT_ARROW_LEFT:
         move--;
         break;
 
       case 'd':
+      case INPUT_ARROW_RIGHT:
         move++;
         break;
 
       case 'w':
+      case INPUT_ARROW_UP:
         move -= board.sizes[0];
         break;
 
       case 's':
+      case INPUT_ARROW_DOWN:
         move += board.sizes[0];
         break;
 
-      case 32:
+      case ' ':
+      case 13:
         if(board.reverse_counts[pos]){
           SetDisc(&board, pos, turn);
 
@@ -305,7 +326,7 @@ void ReversiMain(int disc_type, int vs_mode){
     }
   }
 
-  printf("\e[0m\e[%d;1H\e[?25h", board.sizes[1] + 6);
+  printf("\e[0m\e[%d;1H", board.sizes[1] + 6);
 
   if(board.counts[0] == board.counts[1]){
     puts("引き分け…");
@@ -314,4 +335,11 @@ void ReversiMain(int disc_type, int vs_mode){
   else{
     printf("\e[1m%sの勝ち！！\n\e[0m", REVERSI_DISCS[disc_type + 1 + (board.counts[0] < board.counts[1])]);
   }
+
+  if(input_key != 27){
+    getchar();
+    return 1;
+  }
+
+  return 0;
 }

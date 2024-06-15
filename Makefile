@@ -1,27 +1,23 @@
+CC		= gcc
 NAME	= reversi
-OBJS	= main.o reversi_base.o reversi_npc.o
+OBJS	= main.o term_mode_edit.o reversi_base.o check_input.o reversi_npc.o title.o
+
 
 .PHONY: all
 all: $(NAME)
 
 $(NAME): $(OBJS)
-	gcc $(OBJS) -o $(NAME)
+	$(CC) $(OBJS) -o $(NAME)
+%.o: %.c
+	$(CC) -c $<
 
-main.o: main.c
-	gcc -c main.c
-reversi_base.o: reversi_base.c
-	gcc -c reversi_base.c
-reversi_npc.o: reversi_npc.c
-	gcc -c reversi_npc.c
 
-.PHONY: clean
+.PHONY: clean fclean re
 clean:
 	$(RM) *.o
 
-.PHONY: fclean
 fclean: clean
 	$(RM) $(NAME)
 
-.PHONY: re
 re: fclean all
 
