@@ -42,7 +42,7 @@ int CpuSelectPos(boarddata* board, int turn, int level){
     if(edge_flag && min != -1){
       candidates_len = 1;
       candidates[0] = placeables[i];
-      min == -1;
+      min = -1;
     }
 
     if(count < min){
