@@ -12,6 +12,7 @@ typedef struct{
   int player;
   int levels[2];
   int turn;
+  int disc_type;
   char name1[25];
   char name2[25];
 } reversi_mode;
@@ -39,4 +40,4 @@ int SetReverseCounts(boarddata*, int);
 void SetDisc(boarddata*, int, int);
 void DrawBoard(boarddata*, int, int, int);
 int ChangeTurn(boarddata*, int);
-int ReversiMain(int, reversi_mode*);
+int ReversiMain(reversi_mode*);

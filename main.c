@@ -23,7 +23,7 @@ int main(){
     loop_flag = ShowTitle(&r_mode);
 
     if(loop_flag){
-      loop_flag = ReversiMain(0, &r_mode);
+      loop_flag = ReversiMain(&r_mode);
     }
   }
 

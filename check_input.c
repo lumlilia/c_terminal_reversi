@@ -1,4 +1,4 @@
-/* Last update 2024/06/12 */
+/* Last update 2024/06/18 */
 
 #include <stdio.h>
 #include <fcntl.h>
@@ -8,6 +8,13 @@ static int default_flag;
 
 void GetDefaultFcntlFlag(){
   default_flag = fcntl(0, F_GETFL);
+}
+
+
+void EmptyInputHistory(){
+  fcntl(0, F_SETFL, O_NONBLOCK);
+  while(getchar() > -1){};
+  fcntl(0, F_SETFL, default_flag);
 }
 
 

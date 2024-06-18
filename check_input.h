@@ -1,4 +1,4 @@
-/* Last update 2024/06/12 */
+/* Last update 2024/06/18 */
 
 #pragma once
 
@@ -8,4 +8,5 @@
 #define INPUT_ARROW_LEFT 4479771
 
 void GetDefaultFcntlFlag();
+void EmptyInputHistory();
 int GetInput();

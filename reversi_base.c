@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
+
 #include "reversi_base.h"
 #include "check_input.h"
 
@@ -9,6 +12,7 @@ void FormatReversiMode(reversi_mode* mode){
   mode->levels[0] = 1;
   mode->levels[1] = 1;
   mode->turn = 0;
+  mode->disc_type = 0;
   memset(&mode->name1[0], 0, sizeof(mode->name1));
   memset(&mode->name2[0], 0, sizeof(mode->name2));
   strcpy(&mode->name1[0], "nanasi 1");
@@ -237,8 +241,8 @@ int ChangeTurn(boarddata* board, int turn){
 }
 
 
-int ReversiMain(int disc_type, reversi_mode* mode){
-  disc_type *= 3;
+int ReversiMain(reversi_mode* mode){
+  int disc_type = mode->disc_type * 3;
 
   boarddata board;
   board.sizes[0] = 8;
@@ -249,24 +253,38 @@ int ReversiMain(int disc_type, reversi_mode* mode){
 
   ResetBoard(&board, 1);
 
-  int input_key;
+  int input_key, move, player_turn;
   int loop_flag = 1;
   int pos = 0;
-  int move;
 
   int turn = 0;
 
   SetReverseCounts(&board, 0);
 
+  if(!mode->player){
+    if(mode->turn == 2){
+      srand((unsigned)time(NULL));
+      player_turn = rand() % 2;
+    }
+    else{
+      player_turn = mode->turn;
+    }
+
+    printf("\e[2J\e[8;Hあなたは \e[1m%s\e[22m です\n", REVERSI_DISCS[disc_type + (player_turn + 1)]);
+
+    getchar();
+  }
+  
   printf("\e[2J");
+
   DrawBoard(&board, disc_type, 0, 0);
 
   while(loop_flag){
     if(
-      (!mode->player && turn) ||
+      (!mode->player && turn == !player_turn) ||
       mode->player == 2
     ){
-      pos = CpuSelectPos(&board, 1, 0);
+      pos = CpuSelectPos(&board, turn, mode->levels[(!mode->player ? 0 : turn)]);
       input_key = 32;
     }
     else{
@@ -276,6 +294,7 @@ int ReversiMain(int disc_type, reversi_mode* mode){
 
     switch(input_key){
       case 27:
+      case 'Q':
         loop_flag = 0;
         break;
 
@@ -324,6 +343,8 @@ int ReversiMain(int disc_type, reversi_mode* mode){
         DrawBoard(&board, disc_type, pos, turn);
       }
     }
+
+    EmptyInputHistory();
   }
 
   printf("\e[0m\e[%d;1H", board.sizes[1] + 6);

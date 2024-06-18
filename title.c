@@ -97,12 +97,14 @@ int ShowConfig(reversi_mode* mode){
   int n, cursor, input_key, loop_flag;
   reversi_mode temp = *mode;
 
-  char labels[7][31] = {
+  char labels[9][31] = {
     "CPU LEVEL",
     "CPU1  ",
     "CPU2  ",
     "",
     "FIRST        ",
+    "",
+    "DISC TYPE   ",
     "",
     "OK"
   };
@@ -112,12 +114,13 @@ int ShowConfig(reversi_mode* mode){
   }
 
   SetConfigLabel(2, temp.turn, &labels[4][7]);
+  SetConfigLabel(3, temp.disc_type, &labels[6][11]);
 
   loop_flag = 1;
   cursor = 1;
 
   while(loop_flag){
-    DrawLabel(mode, cursor, 7, (char *)&labels[0]);
+    DrawLabel(mode, cursor, 9, (char *)&labels[0]);
     input_key = GetInput();
 
     switch(input_key){
@@ -137,6 +140,12 @@ int ShowConfig(reversi_mode* mode){
           break;
         }
 
+        else if(cursor == 4){
+          temp.disc_type = !temp.disc_type;
+          SetConfigLabel(3, temp.disc_type, &labels[6][11]);
+          break;
+        }
+
         *mode = temp;
 
       case 27:
@@ -149,13 +158,13 @@ int ShowConfig(reversi_mode* mode){
           cursor--;
         }
         else{
-          cursor = 4;
+          cursor = 5;
         }
         break;
 
       case 's':
       case INPUT_ARROW_DOWN:
-        if(cursor < 4){
+        if(cursor < 5){
           cursor++;
         }
         else{
@@ -171,6 +180,7 @@ void SetConfigLabel(int item_num, int data_num, char* label){
   switch(item_num){
     case 0:
     case 1:
+    case 3:
       sprintf(label, "%d", data_num);
       break;
 
