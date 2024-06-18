@@ -7,7 +7,14 @@
 #include "title_image.c"
 
 
+static const char* turn_labels[3] = {
+  "PLAYER",
+  "CPU",
+  "RANDOM"
+};
+
 static void DrawLabel(reversi_mode*, int, int, char*);
+static void SetConfigLabel(int, int, char*);
 
 
 int ShowTitle(reversi_mode* mode){
@@ -87,7 +94,8 @@ void DrawLabel(reversi_mode* mode, int cursor, int l_count, char* label){
 
 
 int ShowConfig(reversi_mode* mode){
-  int cursor, input_key, loop_flag;
+  int n, cursor, input_key, loop_flag;
+  reversi_mode temp = *mode;
 
   char labels[7][31] = {
     "CPU LEVEL",
@@ -99,17 +107,11 @@ int ShowConfig(reversi_mode* mode){
     "OK"
   };
 
-  char turn_label[3][7] = {
-    "PLAYER",
-    "CPU",
-    "RANDOM"
-  };
-
   for(int i = 0; i < 2; i++){
-    sprintf(&labels[i + 1][6], "%d", mode->levels[i]);
+    SetConfigLabel(i, temp.levels[i], &labels[i + 1][6]);
   }
 
-  sprintf(&labels[4][7], "%6s", turn_label[mode->turn]);
+  SetConfigLabel(2, temp.turn, &labels[4][7]);
 
   loop_flag = 1;
   cursor = 1;
@@ -119,6 +121,24 @@ int ShowConfig(reversi_mode* mode){
     input_key = GetInput();
 
     switch(input_key){
+      case 13:
+      case ' ':
+        if(cursor <= 2){
+          n = cursor - 1;
+          temp.levels[n] = !temp.levels[n];
+          SetConfigLabel(n, temp.levels[n], &labels[n + 1][6]);
+
+          break;
+        }
+
+        else if(cursor == 3){
+          temp.turn += ((temp.turn < 2) ? 1 : -2);
+          SetConfigLabel(2, temp.turn, &labels[4][7]);
+          break;
+        }
+
+        *mode = temp;
+
       case 27:
         loop_flag = 0;
         break;
@@ -143,5 +163,19 @@ int ShowConfig(reversi_mode* mode){
         }
         break;
     }
+  }
+}
+
+
+void SetConfigLabel(int item_num, int data_num, char* label){
+  switch(item_num){
+    case 0:
+    case 1:
+      sprintf(label, "%d", data_num);
+      break;
+
+    case 2:
+      sprintf(label, "%6s", turn_labels[data_num]);
+      break;
   }
 }
