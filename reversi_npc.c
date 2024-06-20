@@ -16,32 +16,32 @@ int CpuSelectPos(boarddata* board, int turn, int level){
     }
   }
 
-  srand((unsigned)time(NULL));
+  srand((unsigned int)time(NULL));
 
   if(!level){
     return placeables[rand() % p_i];
   }
 
-  boarddata temp = *board;
+  boarddata temp;
 
   int candidates[32], count, edge_flag;
   int candidates_len = 0;
   int min = 255;
 
   for(int i = 0; i < p_i; i++){
+    temp = *board;
     SetDisc(&temp, placeables[i], turn);
     count = SetReverseCounts(&temp, !turn);
 
     edge_flag = (
       placeables[i] == 0 ||
       placeables[i] == temp.sizes[0] - 1 ||
-      placeables[i] == temp.sizes[0] * (temp.sizes[1] - 1) ||
+      placeables[i] == temp.sizes[2] - temp.sizes[0] ||
       placeables[i] == temp.sizes[2] - 1
     );
 
     if(edge_flag && min != -1){
-      candidates_len = 1;
-      candidates[0] = placeables[i];
+      candidates_len = 0;
       min = -1;
     }
 
@@ -56,8 +56,6 @@ int CpuSelectPos(boarddata* board, int turn, int level){
 
     candidates[candidates_len] = placeables[i];
     candidates_len++;
-
-    temp = *board;
   }
 
   return candidates[rand() % candidates_len];
