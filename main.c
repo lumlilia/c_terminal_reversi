@@ -9,7 +9,7 @@
 
 
 int main(){
-  int loop_flag;
+  int loop_flag = 1;
   reversi_mode r_mode;
 
   FormatReversiMode(&r_mode);

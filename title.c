@@ -38,6 +38,7 @@ int ShowTitle(reversi_mode* mode){
     input_key = GetInput();
 
     switch(input_key){
+      case 10:
       case 13:
       case ' ':
         if(cursor == 3){
@@ -124,6 +125,7 @@ int ShowConfig(reversi_mode* mode){
     input_key = GetInput();
 
     switch(input_key){
+      case 10:
       case 13:
       case ' ':
         if(cursor <= 2){

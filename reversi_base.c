@@ -318,8 +318,9 @@ int ReversiMain(reversi_mode* mode){
         move += board.sizes[0];
         break;
 
-      case ' ':
+      case 10:
       case 13:
+      case ' ':
         if(board.reverse_counts[pos]){
           SetDisc(&board, pos, turn);
 
